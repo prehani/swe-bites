@@ -1,2 +1,2 @@
-# swe-bites
-version controlled recipes from the instagram account @swe_bites
+# swe-bytes
+version controlled recipes from the instagram account @swe_bytes
