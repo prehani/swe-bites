@@ -1,0 +1,36 @@
+{
+  "id": "ragu-quick",
+  "lineage_id": "0aa0a5c5-2c8a-4b4d-8f6b-491a735ec2e0",
+  "name": "Ragu (Quick Weeknight)",
+  "iteration": 1,
+  "version": "1.0.0",
+  "authors": ["swe_bytes"],
+  "tags": ["italian", "sauce", "weeknight"],
+  "yield": { "amount": 1200, "unit": "g" },
+  "derives_from": {
+    "id": "ragu",
+    "constraint": "^1.0.0",
+    "step_patches": [
+      { "op": "replace", "id": "simmer", "text": "Add tomatoes, salt, pepper; simmer 20–25 min." }
+    ],
+    "ingredient_patches": [
+      { "op": "replace", "id": "tomato", "quantity": 600, "unit": "g" }
+    ]
+  },
+  "ingredients": [
+    { "id": "olive_oil", "name": "Olive oil", "quantity": 30, "unit": "g" },
+    { "id": "onion", "name": "Yellow onion, finely diced", "quantity": 200, "unit": "g" },
+    { "id": "carrot", "name": "Carrot, finely diced", "quantity": 100, "unit": "g" },
+    { "id": "celery", "name": "Celery, finely diced", "quantity": 100, "unit": "g" },
+    { "id": "ground_beef", "name": "Ground beef", "quantity": 500, "unit": "g" },
+    { "id": "tomato", "name": "Crushed tomatoes", "quantity": 600, "unit": "g" },
+    { "id": "salt", "name": "Salt", "quantity": 10, "unit": "g" },
+    { "id": "pepper", "name": "Black pepper", "quantity": 2, "unit": "g" }
+  ],
+  "steps": [
+    { "id": "soffritto", "text": "Sweat onion, carrot, celery in olive oil until soft (10 min)", "time": { "amount": 10, "unit": "min" }, "tools": ["saucepan"], "depends_on": [] },
+    { "id": "brown", "text": "Add ground beef, brown thoroughly.", "tools": ["saucepan"], "depends_on": ["soffritto"] },
+    { "id": "simmer", "text": "Add tomatoes, salt, pepper; simmer 20–25 min.", "time": { "amount": 25, "unit": "min" }, "depends_on": ["brown"] }
+  ]
+}
+

@@ -1,0 +1,22 @@
+{
+  "name": "swe-bytes-web",
+  "version": "0.0.2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "astro build",
+    "dev": "astro dev",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/alpinejs": "^0.4.6",
+    "@astrojs/mdx": "^4.2.4",
+    "@playform/inline": "^0.1.2",
+    "@tailwindcss/typography": "^0.5.16",
+    "@tailwindcss/vite": "^4.1.4",
+    "@types/alpinejs": "^3.13.11",
+    "alpinejs": "^3.14.9",
+    "astro": "^5.7.4",
+    "tailwindcss": "^4.1.4"
+  }
+}

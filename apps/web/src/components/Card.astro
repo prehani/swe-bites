@@ -1,0 +1,13 @@
+---
+const { href } = Astro.props;
+---
+{href ? (
+  <a href={href} class="block bg-white shadow rounded-lg p-6 hover:shadow-lg transition">
+    <slot />
+  </a>
+) : (
+  <div class="bg-white shadow rounded-lg p-6">
+    <slot />
+  </div>
+)}
+

@@ -1,0 +1,40 @@
+---
+import "../styles/main.css";
+const { title = 'swe-bytes' } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <header class="site-header">
+      <h1 class="brand"><a href="/">swe-bytes</a></h1>
+      <nav class="nav">
+        <a href="/">Home</a>
+        <button id="theme-toggle" class="btn">🌙</button>
+      </nav>
+    </header>
+    <slot />
+    <script>
+      const q = (s)=>document.querySelector(s);
+      const root = document.documentElement;
+      const cur = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light');
+      root.dataset.theme = cur;
+      const btn = document.getElementById('theme-toggle');
+      if (btn) {
+        btn.textContent = root.dataset.theme === 'dark' ? '☀️' : '🌙';
+        btn.addEventListener('click', ()=>{
+          const next = root.dataset.theme === 'dark' ? 'light':'dark';
+          root.dataset.theme = next; localStorage.setItem('theme', next);
+          btn.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+      }
+    </script>
+  </body>
+  </html>

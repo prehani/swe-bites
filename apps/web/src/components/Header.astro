@@ -1,0 +1,21 @@
+---
+import { menuMain } from "~/data/menus.js";
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+<header>
+  <div class="container py-6">
+    <nav class="flex items-center justify-between" aria-label="Global">
+      <a href="/" class="-m-1.5 p-1.5">
+        <p class="font-bold text-4xl text-brand-green">swe<span class="text-brand-red bg-brand-red/5 px-3 ml-1 rounded-lg">bytes</span></p>
+      </a>
+      <div class="hidden lg:flex lg:gap-x-12 lg:items-center">
+        {menuMain.map((item) => (
+          <a href={item.url} class={`transition text-base/6 font-semibold hover:text-brand-green ${pathname === item.url ? 'menu-item-active' : ''}`}>
+            {item.name}
+          </a>
+        ))}
+      </div>
+    </nav>
+  </div>
+</header>
+

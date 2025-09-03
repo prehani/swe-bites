@@ -1,0 +1,16 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-inter: "Inter", "sans-serif";
+  --color-brand-green: #157f71;
+  --color-brand-red: #db1d00;
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+}
+
+body { @apply font-inter text-gray-700; }
+

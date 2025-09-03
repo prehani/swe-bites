@@ -1,0 +1,8 @@
+{
+  "name": "swe-bytes-root",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "heroku-postbuild": "npm --prefix apps/web install && npm --prefix apps/web run build"
+  }
+}

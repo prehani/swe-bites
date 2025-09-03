@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/recipe.schema.json",
+  "title": "Recipe",
+  "type": "object",
+  "required": ["id", "lineage_id", "name", "iteration", "version", "yield", "ingredients", "steps"],
+  "additionalProperties": true,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "lineage_id": { "type": "string", "format": "uuid" },
+    "name": { "type": "string" },
+    "iteration": { "type": "integer", "minimum": 0 },
+    "version": { "type": "string" },
+    "authors": { "type": "array", "items": { "type": "string" } },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "yield": {
+      "type": "object",
+      "required": ["amount", "unit"],
+      "properties": {
+        "amount": { "type": "number" },
+        "unit": { "type": "string" }
+      }
+    },
+    "vars": { "type": "object", "additionalProperties": true },
+    "ingredients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "quantity", "unit"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9_.-]+$" },
+          "name": { "type": "string" },
+          "quantity": { "type": "number" },
+          "unit": { "type": "string" },
+          "note": { "type": "string" },
+          "from": { "type": "string" },
+          "optional": { "type": "boolean" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "text"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9_.-]+$" },
+          "text": { "type": "string" },
+          "time": {
+            "type": "object",
+            "properties": {
+              "amount": { "type": "number" },
+              "unit": { "type": "string" }
+            }
+          },
+          "tools": { "type": "array", "items": { "type": "string" } },
+          "depends_on": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": true
+      }
+    },
+    "derives_from": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" },
+        "constraint": { "type": "string" },
+        "ingredient_patches": { "type": "array", "items": { "type": "object" } },
+        "step_patches": { "type": "array", "items": { "type": "object" } }
+      },
+      "additionalProperties": true
+    },
+    "uses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "recipe"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9_.-]+$" },
+          "recipe": { "type": "string" },
+          "constraint": { "type": "string" },
+          "include_steps": { "type": "array", "items": { "type": "string" } },
+          "expose_ingredients": { "type": "boolean" }
+        },
+        "additionalProperties": true
+      }
+    }
+  }
+}
+

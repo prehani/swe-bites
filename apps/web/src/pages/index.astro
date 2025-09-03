@@ -1,0 +1,48 @@
+import Layout from '../layouts/ThemeLayout.astro';
+import Section from '../components/Section.astro';
+import Card from '../components/Card.astro';
+import Heading from '../components/Heading.astro';
+
+const fs = await import('node:fs/promises');
+const path = await import('node:path');
+const recipesDir = path.resolve(process.cwd(), '..', '..', 'recipes');
+let recipes = [];
+try {
+  const entries = await fs.readdir(recipesDir, { withFileTypes: true });
+  for (const e of entries) {
+    if (!e.isDirectory()) continue;
+    const file = path.join(recipesDir, e.name, 'recipe.json');
+    try {
+      const data = JSON.parse(await fs.readFile(file, 'utf-8'));
+      recipes.push({ slug: e.name, name: data.name || e.name, tags: data.tags || [], yield: data.yield || {}, version: data.version });
+    } catch {}
+  }
+  recipes.sort((a,b)=> a.slug.localeCompare(b.slug));
+} catch {}
+---
+<Layout pageTitle="swe-bytes | Recipes" title="swe-bytes" description="Version-controlled recipes">
+  <Section>
+    <Heading>
+      <h2 slot="heading-title">Recipes</h2>
+      <p slot="heading-content">Magnum opus recipes. Explore timelines to see iterations.</p>
+    </Heading>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {recipes.map((r) => (
+        <Card>
+          <h3 class="text-2xl font-bold"><a href={`/recipes/${r.slug}`}>{r.name}</a></h3>
+          <div class="text-gray-600">/{r.slug}</div>
+          <div class="mt-2 mb-2 flex gap-2 flex-wrap">
+            {(r.tags || []).slice(0,4).map((t) => (
+              <span class="text-sm border border-gray-200 px-2 py-1 rounded-full">{t}</span>
+            ))}
+          </div>
+          <div class="text-sm text-gray-600">{r.yield?.amount} {r.yield?.unit}</div>
+          <div class="mt-4 flex gap-2">
+            <span class="text-xs border border-gray-200 px-2 py-1 rounded-full">Magnum Opus</span>
+            <a class="button button-green" href={`/recipes/${r.slug}/timeline`}>Timeline</a>
+          </div>
+        </Card>
+      ))}
+    </div>
+  </Section>
+</Layout>

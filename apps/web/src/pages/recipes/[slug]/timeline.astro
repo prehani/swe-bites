@@ -1,0 +1,91 @@
+---
+import Layout from '../../../layouts/ThemeLayout.astro';
+const { slug } = Astro.params;
+
+// Pre-generate static paths for all slugs
+export async function getStaticPaths() {
+  const fs = await import('node:fs/promises');
+  const path = await import('node:path');
+  const recipesDir = path.resolve(process.cwd(), '..', '..', 'recipes');
+  let entries = [];
+  try {
+    entries = await fs.readdir(recipesDir, { withFileTypes: true });
+  } catch (e) { return []; }
+  const paths = [];
+  for (const e of entries) {
+    if (!e.isDirectory()) continue;
+    try { await fs.access(path.join(recipesDir, e.name, 'recipe.json')); paths.push({ params: { slug: e.name } }); } catch {}
+  }
+  return paths;
+}
+---
+<Layout pageTitle={`Timeline: ${slug}`} title={`Timeline: ${slug}`} description="Recipe timeline">
+  <p><a href={`/recipes/${slug}`}>← Back to recipe</a></p>
+  <h2>Timeline: {slug}</h2>
+  <div class="muted" style="margin-bottom:1rem">Daily snapshots and notes</div>
+
+  <form id="new-iter" class="card" style="margin-bottom:1rem;">
+    <h3>Create Snapshot</h3>
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+      <label>Date <input type="date" id="date"></label>
+      <input type="text" id="note" placeholder="Note (optional)" style="flex:1;min-width:200px;">
+      <button type="submit" class="btn">Save</button>
+    </div>
+    <div id="new-iter-msg" class="muted" style="margin-top:.5rem"></div>
+  </form>
+
+  <div id="timeline" class="grid cards"></div>
+
+  <script type="module">
+    const slug = {JSON.stringify(slug)};
+    async function load() {
+      const timeline = document.querySelector('#timeline');
+      timeline.innerHTML = '<div class="muted">Loading…</div>';
+      const res = await fetch(`/api/recipes/${slug}/iterations`);
+      const data = await res.json();
+      timeline.innerHTML = '';
+      for (const it of (data.iterations||[]).reverse()) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${it.date}</h3>
+          <div class="muted" style="margin:.25rem 0 .5rem;">${it.note || ''}</div>
+          <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+            <a class="btn" href="/recipes/${slug}/iterations/${it.date}">View</a>
+            <button data-date="${it.date}" class="btn promote">Promote to Magnum Opus</button>
+          </div>
+        `;
+        timeline.appendChild(card);
+      }
+
+      timeline.addEventListener('click', async (e) => {
+        const target = e.target;
+        if (target.matches('button.promote')) {
+          e.preventDefault();
+          const date = target.getAttribute('data-date');
+          target.disabled = true;
+          target.textContent = 'Promoting…';
+          const res = await fetch(`/api/recipes/${slug}/promote`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({date})});
+          if (res.ok) {
+            target.textContent = 'Promoted ✅';
+          } else {
+            target.textContent = 'Failed'; target.disabled = false;
+          }
+        }
+      });
+    }
+
+    document.getElementById('new-iter').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('new-iter-msg');
+      msg.textContent = 'Saving…';
+      const date = document.getElementById('date').value || undefined;
+      const note = document.getElementById('note').value || undefined;
+      const res = await fetch(`/api/recipes/${slug}/iterations`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({date, note})});
+      if (res.ok) { msg.textContent = 'Saved ✅'; load(); }
+      else { msg.textContent = 'Failed to save'; }
+    });
+
+    load();
+  </script>
+</Layout>

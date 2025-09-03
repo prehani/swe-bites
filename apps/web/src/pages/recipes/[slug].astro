@@ -1,0 +1,81 @@
+---
+import Layout from '../../layouts/ThemeLayout.astro';
+import Section from '../../components/Section.astro';
+import Heading from '../../components/Heading.astro';
+const { slug } = Astro.params;
+
+// Pre-generate static pages for each recipe slug
+export async function getStaticPaths() {
+  const fs = await import('node:fs/promises');
+  const path = await import('node:path');
+  const recipesDir = path.resolve(process.cwd(), '..', '..', 'recipes');
+  let entries = [];
+  try {
+    entries = await fs.readdir(recipesDir, { withFileTypes: true });
+  } catch (e) {
+    return [];
+  }
+  const paths = [];
+  for (const e of entries) {
+    if (!e.isDirectory()) continue;
+    const file = path.join(recipesDir, e.name, 'recipe.json');
+    try {
+      await fs.access(file);
+      paths.push({ params: { slug: e.name } });
+    } catch {}
+  }
+  return paths;
+}
+---
+<Layout pageTitle={`Recipe: ${slug}`} title={`Recipe: ${slug}`} description="Recipe details">
+  <Section>
+    <p><a class="text-gray-600 hover:text-brand-green" href="/">← Back</a></p>
+    <Heading>
+      <h2 id="title" slot="heading-title">{slug}</h2>
+      <p id="meta" slot="heading-content" class="text-gray-600"></p>
+    </Heading>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div>
+        <h3 class="text-2xl font-bold mb-3">Ingredients</h3>
+        <div id="ingredients" class="grid grid-cols-[1fr_auto] gap-x-6 gap-y-2"></div>
+      </div>
+      <div>
+        <h3 class="text-2xl font-bold mb-3">Steps</h3>
+        <ol id="steps" class="list-decimal pl-5 space-y-2"></ol>
+      </div>
+    </div>
+  </Section>
+
+  <script type="module">
+    const slug = {JSON.stringify(slug)};
+    async function load() {
+      try {
+        const res = await fetch(`/api/recipes/${slug}/resolved`);
+        const r = await res.json();
+        document.querySelector('#title').textContent = `${r.name} (${r.version})`;
+        const y = r.yield || {}; 
+        const tags = (r.tags||[]).slice(0,6).map(t=>`<span class='pill'>${t}</span>`).join(' ');
+        document.querySelector('#meta').innerHTML = `Yield: ${y.amount} ${y.unit} ${tags? ' · '+tags: ''}`;
+        const ing = document.querySelector('#ingredients');
+        ing.innerHTML = '';
+        for (const i of r.ingredients || []) {
+          const name = `${i.name}${i.from? ` <span class='text-gray-600'>[${i.from}]</span>`:''}`;
+          const row = document.createElement('div');
+          row.innerHTML = `<div>${name}</div><div class='text-gray-600'>${i.quantity} ${i.unit}</div>`;
+          ing.appendChild(row);
+        }
+        const steps = document.querySelector('#steps');
+        steps.innerHTML = '';
+        for (const s of r.steps || []) {
+          const li = document.createElement('li');
+          const t = s.time ? ` (${s.time.amount} ${s.time.unit})` : '';
+          li.textContent = `${s.text}${t}`;
+          steps.appendChild(li);
+        }
+      } catch (e) {
+        document.body.insertAdjacentHTML('beforeend', `<pre>${String(e)}</pre>`);
+      }
+    }
+    load();
+  </script>
+</Layout>

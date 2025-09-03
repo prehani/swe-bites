@@ -1,0 +1,25 @@
+{
+  "id": "lasagna",
+  "lineage_id": "c9a575fa-3c6d-4dc3-9e6c-5f2a3e2f1c3a",
+  "name": "Lasagna (Ragu + Bechamel)",
+  "iteration": 1,
+  "version": "1.0.0",
+  "authors": ["swe_bytes"],
+  "tags": ["pasta", "bake"],
+  "yield": { "amount": 1, "unit": "pan" },
+  "uses": [
+    { "id": "ragu", "recipe": "ragu", "constraint": "^1.0.0" },
+    { "id": "bechamel", "recipe": "bechamel", "constraint": "^1.0.0" }
+  ],
+  "ingredients": [
+    { "id": "pasta_sheets", "name": "Dried lasagna sheets", "quantity": 300, "unit": "g" },
+    { "id": "parmigiano", "name": "Parmigiano Reggiano, grated", "quantity": 100, "unit": "g" }
+  ],
+  "steps": [
+    { "id": "prep", "text": "Preheat oven to 375°F (190°C)." },
+    { "id": "layer", "text": "Layer pasta, ragu, bechamel, and cheese; repeat.", "depends_on": ["ragu.simmer", "bechamel.simmer", "prep"] },
+    { "id": "bake", "text": "Bake until bubbling and golden, 35–45 min.", "time": { "amount": 40, "unit": "min" }, "depends_on": ["layer"] },
+    { "id": "rest", "text": "Rest 15 min before slicing.", "time": { "amount": 15, "unit": "min" }, "depends_on": ["bake"] }
+  ]
+}
+

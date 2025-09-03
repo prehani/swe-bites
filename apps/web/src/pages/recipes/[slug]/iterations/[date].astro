@@ -1,0 +1,72 @@
+---
+import Layout from '../../../../layouts/ThemeLayout.astro';
+const { slug, date } = Astro.params;
+
+// Pre-generate static paths for all snapshot pages if present at build time
+export async function getStaticPaths() {
+  const fs = await import('node:fs/promises');
+  const path = await import('node:path');
+  const recipesDir = path.resolve(process.cwd(), '..', '..', 'recipes');
+  const paths = [];
+  let entries = [];
+  try { entries = await fs.readdir(recipesDir, { withFileTypes: true }); } catch { return []; }
+  for (const e of entries) {
+    if (!e.isDirectory()) continue;
+    const iterDir = path.join(recipesDir, e.name, 'iterations');
+    try {
+      const dates = await fs.readdir(iterDir, { withFileTypes: true });
+      for (const d of dates) {
+        if (d.isDirectory()) {
+          const raw = path.join(iterDir, d.name, 'recipe.json');
+          try { await fs.access(raw); paths.push({ params: { slug: e.name, date: d.name } }); } catch {}
+        }
+      }
+    } catch {}
+  }
+  return paths;
+}
+---
+<Layout pageTitle={`Snapshot: ${slug} — ${date}`} title={`Snapshot: ${slug}`} description="Snapshot view">
+  <p><a href={`/recipes/${slug}/timeline`}>← Back to timeline</a></p>
+  <h2 id="title">{slug} — {date}</h2>
+  <p id="meta" class="muted"></p>
+  <h3>Ingredients</h3>
+  <div id="ingredients" class="ingredients"></div>
+  <h3>Steps</h3>
+  <div class="steps"><ol id="steps"></ol></div>
+
+  <script type="module">
+    const slug = {JSON.stringify(slug)};
+    const dateStr = {JSON.stringify(date)};
+    async function load() {
+      try {
+        const res = await fetch(`/api/recipes/${slug}/iterations/${dateStr}`);
+        const data = await res.json();
+        const r = data.resolved;
+        document.querySelector('#title').textContent = `${r.name} (${r.version}) — ${dateStr}`;
+        const y = r.yield || {}; 
+        const tags = (r.tags||[]).slice(0,6).map(t=>`<span class='pill'>${t}</span>`).join(' ');
+        document.querySelector('#meta').innerHTML = `Yield: ${y.amount} ${y.unit} ${tags? ' · '+tags: ''}`;
+        const ing = document.querySelector('#ingredients');
+        ing.innerHTML = '';
+        for (const i of r.ingredients || []) {
+          const name = `${i.name}${i.from? ` <span class='muted'>[${i.from}]</span>`:''}`;
+          const row = document.createElement('div');
+          row.innerHTML = `<div>${name}</div><div class='qty'>${i.quantity} ${i.unit}</div>`;
+          ing.appendChild(row);
+        }
+        const steps = document.querySelector('#steps');
+        steps.innerHTML = '';
+        for (const s of r.steps || []) {
+          const li = document.createElement('li');
+          const t = s.time ? ` (${s.time.amount} ${s.time.unit})` : '';
+          li.textContent = `${s.text}${t}`;
+          steps.appendChild(li);
+        }
+      } catch (e) {
+        document.body.insertAdjacentHTML('beforeend', `<pre>${String(e)}</pre>`);
+      }
+    }
+    load();
+  </script>
+</Layout>

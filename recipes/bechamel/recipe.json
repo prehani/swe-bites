@@ -1,0 +1,23 @@
+{
+  "id": "bechamel",
+  "lineage_id": "6f0b2d3a-1b5a-49f6-b5b6-7a2bb5e2b6cc",
+  "name": "Bechamel (White Sauce)",
+  "iteration": 1,
+  "version": "1.0.0",
+  "authors": ["swe_bytes"],
+  "tags": ["sauce", "white sauce"],
+  "yield": { "amount": 1000, "unit": "g" },
+  "ingredients": [
+    { "id": "butter", "name": "Unsalted butter", "quantity": 80, "unit": "g" },
+    { "id": "flour", "name": "All-purpose flour", "quantity": 80, "unit": "g" },
+    { "id": "milk", "name": "Whole milk", "quantity": 900, "unit": "g" },
+    { "id": "salt", "name": "Salt", "quantity": 8, "unit": "g" },
+    { "id": "nutmeg", "name": "Freshly grated nutmeg", "quantity": 1, "unit": "g", "optional": true }
+  ],
+  "steps": [
+    { "id": "roux", "text": "Melt butter, whisk in flour; cook 2–3 min.", "time": { "amount": 3, "unit": "min" }, "tools": ["saucepan", "whisk"] },
+    { "id": "add_milk", "text": "Gradually whisk in warm milk until smooth.", "depends_on": ["roux"] },
+    { "id": "simmer", "text": "Simmer until thickened; season with salt and nutmeg.", "time": { "amount": 10, "unit": "min" }, "depends_on": ["add_milk"] }
+  ]
+}
+

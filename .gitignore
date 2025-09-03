@@ -1,0 +1,6 @@
+# Python virtual environment
+.venv/
+
+# Node & Astro artifacts
+apps/web/node_modules/
+apps/web/dist/
